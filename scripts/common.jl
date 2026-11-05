@@ -3,7 +3,7 @@
 const ROOT = normpath(joinpath(@__DIR__, ".."))
 include(joinpath(ROOT, "src", "RentGapCity.jl"))
 using .RentGapCity
-using DataFrames, CSV, Statistics, Printf
+using Agents, DataFrames, CSV, Statistics, Printf
 
 const RESULTS = joinpath(ROOT, "results"); mkpath(RESULTS)
 const FIGURES = joinpath(ROOT, "figures"); mkpath(FIGURES)
