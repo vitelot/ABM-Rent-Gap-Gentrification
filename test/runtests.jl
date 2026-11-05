@@ -1,4 +1,4 @@
-# Smoke tests: julia +1.10 --project test/runtests.jl
+# Smoke tests: julia +1.9 --project=env-paper test/runtests.jl (or julia --project test/runtests.jl)
 include(joinpath(@__DIR__, "..", "src", "RentGapCity.jl"))
 using .RentGapCity
 using Test, Statistics, Agents, DataFrames

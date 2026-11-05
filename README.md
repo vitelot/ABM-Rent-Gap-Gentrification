@@ -48,14 +48,23 @@ results/             CSV output of the scripts (per-step tables are git-ignored)
 figures/             figures produced by the scripts
 ```
 
-## Requirements
+## Requirements and the two environments
 
-Julia 1.10 (Agents.jl 6.2 does not precompile on Julia 1.13). With
-[juliaup](https://github.com/JuliaLang/juliaup): `juliaup add 1.10`.
+The random stream of a seed depends on the Julia version (the same seed gives
+a different city on Julia 1.9 and on Julia 1.13, even with the same `StatsBase`
+and `Distributions` versions). The 15 seeds of the paper
+were selected as "successful gentrification" runs under the original setup, so
+they only reproduce the paper under that setup. Two environments are provided:
+
+* `env-paper/`: the original `Manifest.toml` (Julia 1.9, Agents 6.2.10,
+  StatsBase 0.34.4, Distributions 0.25.118). Use it to reproduce the paper.
+  With [juliaup](https://github.com/JuliaLang/juliaup): `juliaup add 1.9`.
+* the root `Project.toml`: a lean environment for Julia 1.10 and later
+  (same model, different random stream, so different seeds gentrify).
 
 ```bash
-julia +1.10 --project -e 'import Pkg; Pkg.instantiate()'
-julia +1.10 --project test/runtests.jl
+julia +1.9 --project=env-paper -e 'import Pkg; Pkg.instantiate()'
+julia +1.9 --project=env-paper test/runtests.jl
 ```
 
 ## Running
@@ -65,19 +74,19 @@ Use `-t auto` to run seeds in parallel.
 
 ```bash
 # dose-response sweep (threshold figure): final indicators vs f, random and rent-gap
-julia +1.10 -t auto --project scripts/sweep_fraction.jl --tag=paper
-julia +1.10 --project scripts/plot_sweep.jl --tags=paper
+julia +1.9 -t auto --project=env-paper scripts/sweep_fraction.jl --tag=paper
+julia +1.9 --project=env-paper scripts/plot_sweep.jl --tags=paper
 
 # sensitivity to the public-housing spillover
-julia +1.10 -t auto --project scripts/sweep_fraction.jl --tag=s0 --spillover=0
-julia +1.10 -t auto --project scripts/sweep_fraction.jl --tag=once_s2 --mode=once --spillover=2
-julia +1.10 --project scripts/plot_sweep.jl --tags=paper,s0,once_s2 --out=spillover
+julia +1.9 -t auto --project=env-paper scripts/sweep_fraction.jl --tag=s0 --spillover=0
+julia +1.9 -t auto --project=env-paper scripts/sweep_fraction.jl --tag=once_s2 --mode=once --spillover=2
+julia +1.9 --project=env-paper scripts/plot_sweep.jl --tags=paper,s0,once_s2 --out=spillover
 
 # time evolution at f = 0.07 (three scenarios) + segregation indices, three-tier D, Theil
-julia +1.10 -t auto --project scripts/compare_scenarios.jl --fraction=0.07 --tag=paper
+julia +1.9 -t auto --project=env-paper scripts/compare_scenarios.jl --fraction=0.07 --tag=paper
 
 # city maps of one seed and the gentrification cluster before/after the intervention
-julia +1.10 --project scripts/city_maps.jl --seed=580 --fraction=0.07
+julia +1.9 --project=env-paper scripts/city_maps.jl --seed=580 --fraction=0.07
 ```
 
 Minimal programmatic use:
@@ -109,9 +118,10 @@ r.abmproperties(model)   # final City state
 ## Reproducibility notes
 
 The random-number calls are issued in the same order as in the original code
-(`MersenneTwister(seed)`), so the original seeds give the same cities and the
-same trajectories, up to changes in the sampling routines of `Distributions`
-and `StatsBase` between package versions. The 15 seeds of the "successful
+(`MersenneTwister(seed)`); in `env-paper` the trajectories are identical to those
+of the original notebooks (checked on several seeds and all three policies).
+`results/julia1.13/` keeps the same sweeps run in the lean environment on
+Julia 1.13, where only part of the 15 seeds gentrify. The 15 seeds of the "successful
 gentrification" cluster used in the paper are in `PAPER_SEEDS`.
 
 The empirical validation (ACS rent and income series of gentrifying ZIP codes)

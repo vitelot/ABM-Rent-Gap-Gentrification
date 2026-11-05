@@ -3,3 +3,4 @@ results/*_steps.csv
 .DS_Store
 env110/
 *.ipynb_checkpoints
+results/julia1.13/*_steps.csv
