@@ -70,8 +70,8 @@ nanmean(x) = (v = filter(!isnan, collect(skipmissing(x))); isempty(v) ? NaN : me
 Mean and SEM across seeds of the given columns, grouped by `by` (plus any extra grouping columns).
 """
 function summarize_by_step(metrics::DataFrame, cols::Vector{Symbol}; by = [:step])
-    pairs = [c => nanmean => Symbol("mean_", c) for c in cols]
-    append!(pairs, [c => sem => Symbol("sem_", c) for c in cols])
+    pairs = Any[c => nanmean => Symbol("mean_", c) for c in cols]
+    append!(pairs, Any[c => sem => Symbol("sem_", c) for c in cols])
     return combine(groupby(metrics, by), pairs...)
 end
 
