@@ -13,7 +13,7 @@ f = getarg(args, "fraction", 0.07)
 n_dynamics = getarg(args, "steps", 170)
 n_therm = 15
 base = ModelParams(public_housing_spillover = getarg(args, "spillover", 2.0),
-                   public_housing_spillover_mode = getarg(args, "mode", :every_step))
+                   public_housing_spillover_mode = getarg(args, "mode", :once))
 
 "Heat map of a patch field with agents as dots coloured by group; public units white, amenities green, CBD black."
 function city_map!(ax, model; field = :capitalized_rent, range = (0.0, 70.0))
@@ -62,6 +62,11 @@ for (k, name) in enumerate(("none", "random", "rentgap"))
 end
 save(joinpath(FIGURES, "city_maps_seed$(seed)_f$(f).pdf"), fig)
 save(joinpath(FIGURES, "city_maps_seed$(seed)_f$(f).png"), fig, px_per_unit = 2)
+for name in ("random", "rentgap")
+    f1 = Figure(size = (600, 600))
+    ax = Axis(f1[1, 1]); city_map!(ax, runs[name].model)
+    save(joinpath(FIGURES, "PH_$(name)_seed$(seed)_f$(f).pdf"), f1)
+end
 
 # ---- gentrification cluster before / after activation (rent-gap targeting) -----
 fc = getarg(args, "cluster_fraction", 0.06)
@@ -96,6 +101,10 @@ if t_act >= 0
     Label(fig[0, 1:2], "Gentrification cluster (orange), public units (white), negative spillover (blue); seed $seed, rent-gap f = $fc",
           fontsize = 14)
     save(joinpath(FIGURES, "gentrification_cluster_seed$(seed)_f$(fc).pdf"), fig)
+    for (name, m) in (("before", before), ("after", after))
+        f1 = Figure(size = (600, 600)); ax = Axis(f1[1, 1]); cluster_map!(ax, m)
+        save(joinpath(FIGURES, "cluster_$(name)_seed$(seed)_f$(fc).pdf"), f1)
+    end
     println("activation step $t_act, LCC before/after: $(gentrification_lcc(abmproperties(before))) / $(gentrification_lcc(abmproperties(after)))")
 else
     println("policy never activated for seed $seed")

@@ -42,6 +42,9 @@ function activate_public_housing!(model)
     city.public_housing_activation_step = abmtime(model)
 
     candidates = conversion_candidates(model)
+    order = sortperm([c.gap for c in candidates], rev = true)
+    city.candidate_gaps_at_activation = [candidates[k].gap for k in order]
+    city.candidate_inner_at_activation = [is_inner_city(candidates[k].pos, city) for k in order]
     n_target = round(Int, city.n_houses * p.public_housing_fraction)
     n = min(n_target, length(candidates))
     n == 0 && return Pos[]

@@ -1,6 +1,7 @@
+results/**/*_steps.csv
 results/*_steps.csv
 *.jld2
 .DS_Store
 env110/
 *.ipynb_checkpoints
-results/julia1.13/*_steps.csv
+results/v1/julia1.13/*_steps.csv

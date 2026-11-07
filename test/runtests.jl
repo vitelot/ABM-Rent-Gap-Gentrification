@@ -19,7 +19,7 @@ using Test, Statistics, Agents, DataFrames
 end
 
 @testset "dynamics and policy" begin
-    r = run_scenario(ModelParams(policy = :rentgap, public_housing_fraction = 0.06); seed = 580, n_dynamics = 60)
+    r = run_scenario(ModelParams(policy = :rentgap, public_housing_fraction = 0.06, median_rent_growth_trigger = 0.2); seed = 580, n_dynamics = 60)
     @test nrow(r.metrics) == 76
     @test abmproperties(r.model).public_housing_active
     @test length(abmproperties(r.model).public_housing_positions) == round(Int, 0.06 * abmproperties(r.model).n_houses)
@@ -40,10 +40,10 @@ end
 end
 
 @testset "spillover modes" begin
-    p1 = ModelParams(policy = :rentgap, public_housing_fraction = 0.06, public_housing_spillover_mode = :once)
+    p1 = ModelParams(policy = :rentgap, public_housing_fraction = 0.06, public_housing_spillover_mode = :every_step, median_rent_growth_trigger = 0.2)
     r1 = run_scenario(p1; seed = 580, n_dynamics = 60, collect_quadrants = false)
     @test abmproperties(r1.model).public_housing_active
-    p0 = ModelParams(policy = :rentgap, public_housing_fraction = 0.06, public_housing_spillover = 0.0)
+    p0 = ModelParams(policy = :rentgap, public_housing_fraction = 0.06, public_housing_spillover = 0.0, median_rent_growth_trigger = 0.2)
     r0 = run_scenario(p0; seed = 580, n_dynamics = 60, collect_quadrants = false)
     @test all(abmproperties(r0.model).potential_rent[pos...] >= 1.5 for pos in abmproperties(r0.model).negative_spillover_history)
 end

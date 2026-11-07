@@ -136,7 +136,7 @@ function model_step!(model)
     for k in 1:n_renovate
         pos = gaps[k].pos
         is_inner_city(pos, city) && (n_inner += 1)
-        city.house_age[pos...] = rand(rng, Exponential(p.mean_age_after_renovation))
+        city.house_age[pos...] = clamp(rand(rng, Exponential(p.mean_age_after_renovation)), 0.0, p.renovation_age_max)
         city.investments_to_evaluate[pos] = t
         push!(renovated, pos)
         push!(city.renovated_history, pos)

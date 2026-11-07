@@ -131,7 +131,7 @@ function initialize_model(p::ModelParams = ModelParams(); seed::Int = 12345)
                 s_min, s_max, p.max_house_age, n_houses, income_cutoff, middle_cutoff,
                 :thermalization,
                 1.0, true, Dict{Pos,Int}(), Set{Pos}(), 0, 0, Set{Pos}(), Set{Pos}(), Set{Pos}(),
-                false, -1, ph_rent, inner_median, Pos[])
+                false, -1, ph_rent, inner_median, Pos[], Float64[], Bool[])
 
     model = StandardABM(Household, space; agent_step!, model_step!, properties = city,
                         rng, scheduler = random_scheduler, warn = false)

@@ -15,6 +15,11 @@
 #   --exclude_renovated=false
 #   --steps=170           dynamic steps
 #   --trigger=0.5         rent growth that activates the policy
+#   --dims=40             grid side
+#   --vacancy=0.075       target vacancy rate
+#   --income_threshold=30 income below which a household may use a public unit (and makes its house eligible)
+#   --renovation_age_max=15   Inf reproduces the first submission
+# First-submission (v1) settings: --mode=every_step --exclude_renovated=false --renovation_age_max=Inf
 include(joinpath(@__DIR__, "common.jl"))
 
 args = parse_args()
@@ -24,16 +29,23 @@ seeds = parse_seeds(getarg(args, "seeds", "paper"))
 policies = Symbol.(split(getarg(args, "policies", "random,rentgap"), ","))
 n_dynamics = getarg(args, "steps", 170)
 
+dims = getarg(args, "dims", 40)
 base = ModelParams(
+    dims = (dims, dims),
     public_housing_spillover = getarg(args, "spillover", 2.0),
-    public_housing_spillover_mode = getarg(args, "mode", :every_step),
-    exclude_renovated_from_conversion = getarg(args, "exclude_renovated", false),
+    public_housing_spillover_mode = getarg(args, "mode", :once),
+    exclude_renovated_from_conversion = getarg(args, "exclude_renovated", true),
     median_rent_growth_trigger = getarg(args, "trigger", 0.5),
+    target_vacancy_rate = getarg(args, "vacancy", 0.075),
+    public_housing_income_threshold = getarg(args, "income_threshold", 30.0),
+    renovation_age_max = getarg(args, "renovation_age_max", 15.0),
 )
 println("sweep '$tag': $(length(fractions)) fractions x $(length(policies)) policies x $(length(seeds)) seeds, ",
         "$(Threads.nthreads()) threads")
 println("spillover=$(base.public_housing_spillover) mode=$(base.public_housing_spillover_mode) ",
-        "exclude_renovated=$(base.exclude_renovated_from_conversion) trigger=$(base.median_rent_growth_trigger)")
+        "exclude_renovated=$(base.exclude_renovated_from_conversion) trigger=$(base.median_rent_growth_trigger) ",
+        "dims=$(base.dims) vacancy=$(base.target_vacancy_rate) income_threshold=$(base.public_housing_income_threshold) ",
+        "renovation_age_max=$(base.renovation_age_max)")
 
 steps = run_grid(base, seeds, fractions, policies; n_dynamics)
 CSV.write(joinpath(RESULTS, "sweep_$(tag)_steps.csv"), steps)

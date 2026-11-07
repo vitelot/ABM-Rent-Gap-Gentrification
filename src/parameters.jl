@@ -9,11 +9,14 @@ Notes on the public-housing spillover:
 * `public_housing_spillover` is the *decrease* of potential rent applied to the
   Moore neighbours of a public unit (a positive number means a negative spillover;
   a negative number models a positive spillover).
-* `public_housing_spillover_mode = :every_step` reproduces the original code: the
-  decrease is applied at every step after the policy activates (cumulative, floored
-  at `min_potential_rent_factor * base_potential_rent`).
-  `:once` applies the decrease only once, at conversion time, which is the
-  counterpart of the one-shot positive spillover of a developer renovation.
+* `public_housing_spillover_mode = :once` (default, revised manuscript) applies the
+  decrease once, at conversion time, the counterpart of the one-shot positive
+  spillover of a developer renovation. `:every_step` reproduces the code of the
+  first submission: the decrease is applied at every step after activation
+  (cumulative, floored at `min_potential_rent_factor * base_potential_rent`).
+
+Settings of the first submission (v1): `public_housing_spillover_mode = :every_step`,
+`exclude_renovated_from_conversion = false`, `renovation_age_max = Inf`.
 """
 Base.@kwdef struct ModelParams
     # ---- grid and environment -------------------------------------------------
@@ -58,7 +61,8 @@ Base.@kwdef struct ModelParams
     developer_confidence_max::Float64 = 3.0
     developer_confidence_reset_value::Float64 = 1.0
     developer_recovery_threshold::Float64 = 0.5
-    mean_age_after_renovation::Float64 = 7.0      # renovated age ~ Exp(mean)
+    mean_age_after_renovation::Float64 = 7.0      # renovated age ~ Exp(mean), clamped to [0, renovation_age_max]
+    renovation_age_max::Float64 = 15.0            # Inf reproduces v1 (no clamp)
     gentrification_spillover_radius::Int = 1
     gentrification_spillover_boost::Float64 = 4.0 # one-shot increase of PR of the neighbours of a renovated patch
     age_step::Float64 = 0.05                      # ageing per dynamic step
@@ -70,10 +74,10 @@ Base.@kwdef struct ModelParams
     median_rent_growth_trigger::Float64 = 0.5     # policy activates when inner-city median rent grew by this fraction
     public_housing_income_threshold::Float64 = 30.0 # only agents below this income can use (or keep) a public unit
     public_housing_spillover::Float64 = 2.0       # decrease of PR of the neighbours of a public unit
-    public_housing_spillover_mode::Symbol = :every_step # :every_step (original code) or :once
+    public_housing_spillover_mode::Symbol = :once # :once (revised) or :every_step (v1 code)
     public_housing_spillover_radius::Int = 1
     public_housing_renovation_age::Float64 = 40.0 # converted units older than this are brought back to this age
-    exclude_renovated_from_conversion::Bool = false # the original code declares but never fills the renovated set
+    exclude_renovated_from_conversion::Bool = true # renovated houses are not eligible for conversion (false in v1)
     min_potential_rent_factor::Float64 = 0.5      # floor of PR under negative spillover, times base_potential_rent
 end
 

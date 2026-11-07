@@ -11,6 +11,14 @@ using CairoMakie
 args = parse_args()
 tags = split(getarg(args, "tags", "paper"), ",")
 out = getarg(args, "out", join(tags, "_"))
+# descriptive panel titles; --labels=a;b;c overrides
+default_labels = Dict("base" => "baseline (spillover -2, once)", "spill0" => "no public-housing spillover",
+    "spill4" => "spillover doubled (-4)", "trig025" => "activation at 25% rent growth", "trig075" => "activation at 75% rent growth",
+    "vac005" => "vacancy 5%", "vac010" => "vacancy 10%", "inc20" => "eligibility 20k USD", "inc45" => "eligibility 45k USD",
+    "grid60" => "60x60 grid, 400 steps", "paper" => "first submission (spillover every step)",
+    "s1" => "every step, -1", "s0" => "no spillover", "sneg1" => "every step, +1", "once_s2" => "once, -2", "once_s4" => "once, -4")
+labels_arg = getarg(args, "labels", "")
+panel_labels = isempty(labels_arg) ? [get(default_labels, t, t) for t in tags] : split(labels_arg, ";")
 colors = Dict("random" => :dodgerblue3, "rentgap" => :darkorange2)
 labels = Dict("random" => "Random", "rentgap" => "Rent-gap")
 
@@ -30,7 +38,7 @@ for (k, tag) in enumerate(tags)
     s = CSV.read(joinpath(RESULTS, "sweep_$(tag)_summary.csv"), DataFrame)
     row, col = cld(k, 2), mod1(k, 2)
     ax = Axis(fig[row, col], xlabel = "Public housing fraction f", ylabel = "Final inner-city median income",
-              title = n > 1 ? tag : "")
+              title = n > 1 ? panel_labels[k] : "", titlesize = 13)
     panel!(ax, s, :mean_final_income, :sem_final_income)
     k == 1 && axislegend(ax, position = :rt)
 end

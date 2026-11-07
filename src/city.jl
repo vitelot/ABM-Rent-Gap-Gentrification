@@ -46,6 +46,8 @@ mutable struct City
     public_housing_rent::Float64
     initial_median_inner_city_rent::Float64
     public_housing_positions::Vector{NTuple{2,Int}}
+    candidate_gaps_at_activation::Vector{Float64}   # rent gaps of the eligible houses, sorted decreasing
+    candidate_inner_at_activation::Vector{Bool}     # whether each candidate is in the inner city
 end
 
 const Pos = NTuple{2,Int}
