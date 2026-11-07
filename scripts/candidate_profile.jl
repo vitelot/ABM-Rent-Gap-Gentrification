@@ -15,7 +15,9 @@ p = ModelParams(policy = :rentgap, public_housing_fraction = 0.06, dims = (dims,
                 public_housing_spillover = getarg(args, "spillover", 2.0),
                 median_rent_growth_trigger = getarg(args, "trigger", 0.5),
                 target_vacancy_rate = getarg(args, "vacancy", 0.075),
-                public_housing_income_threshold = getarg(args, "income_threshold", 30.0))
+                public_housing_income_threshold = getarg(args, "income_threshold", 30.0),
+                developer_investments_per_step = getarg(args, "dev_invest", 1),
+                developer_search_sample_size = getarg(args, "dev_sample", 30))
 
 rows = NamedTuple[]
 Threads.@threads for k in eachindex(seeds)

@@ -19,6 +19,7 @@
 #   --vacancy=0.075       target vacancy rate
 #   --income_threshold=30 income below which a household may use a public unit (and makes its house eligible)
 #   --renovation_age_max=15   Inf reproduces the first submission
+#   --dev_invest=1 --dev_sample=30   developer capacity (scale with the stock for larger grids)
 # First-submission (v1) settings: --mode=every_step --exclude_renovated=false --renovation_age_max=Inf
 include(joinpath(@__DIR__, "common.jl"))
 
@@ -39,6 +40,8 @@ base = ModelParams(
     target_vacancy_rate = getarg(args, "vacancy", 0.075),
     public_housing_income_threshold = getarg(args, "income_threshold", 30.0),
     renovation_age_max = getarg(args, "renovation_age_max", 15.0),
+    developer_investments_per_step = getarg(args, "dev_invest", 1),
+    developer_search_sample_size = getarg(args, "dev_sample", 30),
 )
 println("sweep '$tag': $(length(fractions)) fractions x $(length(policies)) policies x $(length(seeds)) seeds, ",
         "$(Threads.nthreads()) threads")
